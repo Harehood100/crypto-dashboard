@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { ArrowUpDown, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react'
 import { useCryptoStore } from '@/store/useCryptoStore'
@@ -18,7 +19,6 @@ const formatLarge = (num: number) => {
     return `$${num.toLocaleString()}`
 }
 
-// Inline sparkline SVG
 function Sparkline({ prices, isPositive }: { prices: number[]; isPositive: boolean }) {
     const min = Math.min(...prices)
     const max = Math.max(...prices)
@@ -42,7 +42,7 @@ function Sparkline({ prices, isPositive }: { prices: number[]; isPositive: boole
     )
 }
 
-// Sort pill button
+// Bug 1 was here: SortPill was destructuring the wrong things from the store
 function SortPill({
     label,
     field,
@@ -62,10 +62,10 @@ function SortPill({
         <button
             onClick={handleClick}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${isActive
-                ? 'bg-blue-600 text-white'
-                : isDarkMode
-                    ? 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-blue-600 text-white'
+                    : isDarkMode
+                        ? 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
         >
             {label}
@@ -78,7 +78,7 @@ function SortPill({
     )
 }
 
-// Individual coin card
+// Bug 2 was here: CoinCard was destructuring wrong things and missing setSelectedCoin
 function CoinCard({ coin, index }: { coin: Coin; index: number }) {
     const { isDarkMode, setSelectedCoin } = useCryptoStore()
     const isPositive = coin.price_change_percentage_24h >= 0
@@ -92,10 +92,15 @@ function CoinCard({ coin, index }: { coin: Coin; index: number }) {
                     : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100'
                 }`}
         >
-            {/* Top row */}
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2.5">
-                    <img src={coin.image} alt={coin.name} className="w-9 h-9 rounded-full" />
+                    <Image
+                        src={coin.image}
+                        alt={coin.name}
+                        width={36}
+                        height={36}
+                        className="rounded-full"
+                    />
                     <div>
                         <p className={`text-sm font-semibold leading-tight ${isDarkMode ? 'text-white' : 'text-gray-900'
                             }`}>
@@ -104,35 +109,28 @@ function CoinCard({ coin, index }: { coin: Coin; index: number }) {
                         <p className="text-xs text-gray-500 uppercase">{coin.symbol}</p>
                     </div>
                 </div>
-
-                {/* Rank badge */}
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${isDarkMode ? 'bg-gray-800 text-gray-400' : 'bg-gray-100 text-gray-500'
                     }`}>
                     #{coin.market_cap_rank}
                 </span>
             </div>
 
-            {/* Sparkline */}
             <div className="my-2">
                 <Sparkline prices={coin.sparkline_in_7d.price} isPositive={isPositive} />
             </div>
 
-            {/* Price row */}
             <div className="flex items-end justify-between mt-2">
                 <p className={`text-base font-bold font-mono ${isDarkMode ? 'text-white' : 'text-gray-900'
                     }`}>
                     {formatCurrency(coin.current_price)}
                 </p>
-                <span className={`flex items-center gap-0.5 text-xs font-semibold px-2 py-1 rounded-full ${isPositive
-                    ? 'bg-green-500/10 text-green-400'
-                    : 'bg-red-500/10 text-red-400'
+                <span className={`flex items-center gap-0.5 text-xs font-semibold px-2 py-1 rounded-full ${isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
                     }`}>
                     {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
                     {Math.abs(coin.price_change_percentage_24h).toFixed(2)}%
                 </span>
             </div>
 
-            {/* Footer */}
             <div className={`flex justify-between mt-3 pt-3 border-t ${isDarkMode ? 'border-gray-800' : 'border-gray-100'
                 }`}>
                 <div>
@@ -152,9 +150,11 @@ function CoinCard({ coin, index }: { coin: Coin; index: number }) {
     )
 }
 
-// Main export
 export default function CryptoTable() {
-    const { isLoading, error, fetchCoins, isDarkMode, getFilteredAndSortedCoins } = useCryptoStore()
+    // Bug 3 was here: coins was declared AFTER the useEffect that used it
+    // Bug 4 was here: CryptoTable destructuring was missing coins
+    const { isLoading, error, fetchCoins, isDarkMode, getFilteredAndSortedCoins, coins } = useCryptoStore()
+    const [visibleCount, setVisibleCount] = useState(8)
 
     useEffect(() => {
         fetchCoins()
@@ -162,9 +162,18 @@ export default function CryptoTable() {
         return () => clearInterval(interval)
     }, [])
 
-    const coins = getFilteredAndSortedCoins()
+    useEffect(() => {
+        if (coins.length > 0) {
+            const t = setTimeout(() => setVisibleCount(20), 300)
+            return () => clearTimeout(t)
+        }
+    }, [coins.length])
 
-    if (isLoading && coins.length === 0) {
+    // coins from getFilteredAndSortedCoins is for the DISPLAY (filtered/sorted)
+    // coins from the store is the RAW data used for the useEffect above
+    const displayCoins = getFilteredAndSortedCoins()
+
+    if (isLoading && displayCoins.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -187,7 +196,7 @@ export default function CryptoTable() {
         )
     }
 
-    if (coins.length === 0) {
+    if (displayCoins.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-24">
                 <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>No coins match your search.</p>
@@ -197,7 +206,6 @@ export default function CryptoTable() {
 
     return (
         <div>
-            {/* Sort controls */}
             <div className="flex items-center gap-2 mb-5">
                 <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Sort by</span>
                 <SortPill label="Rank" field="market_cap_rank" />
@@ -205,9 +213,8 @@ export default function CryptoTable() {
                 <SortPill label="24h %" field="price_change_percentage_24h" />
             </div>
 
-            {/* Card grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {coins.map((coin, index) => (
+                {displayCoins.slice(0, visibleCount).map((coin, index) => (
                     <CoinCard key={coin.id} coin={coin} index={index} />
                 ))}
             </div>

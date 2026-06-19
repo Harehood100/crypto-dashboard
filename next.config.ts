@@ -1,7 +1,21 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'coin-images.coingecko.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.coingecko.com',
+      },
+    ],
+  },
+  experimental: {
+    optimizePackageImports: ['recharts', 'lucide-react'],
+  },
+}
 
-export default nextConfig;
+export default nextConfig

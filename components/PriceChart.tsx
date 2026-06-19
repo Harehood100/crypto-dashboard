@@ -1,17 +1,19 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
-import {
-    ResponsiveContainer,
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-} from 'recharts'
+import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import { useCryptoStore } from '@/store/useCryptoStore'
+
+// Dynamically import ALL recharts components
+const AreaChart = dynamic(() => import('recharts').then(m => ({ default: m.AreaChart })), { ssr: false })
+const Area = dynamic(() => import('recharts').then(m => ({ default: m.Area })), { ssr: false })
+const XAxis = dynamic(() => import('recharts').then(m => ({ default: m.XAxis })), { ssr: false })
+const YAxis = dynamic(() => import('recharts').then(m => ({ default: m.YAxis })), { ssr: false })
+const CartesianGrid = dynamic(() => import('recharts').then(m => ({ default: m.CartesianGrid })), { ssr: false })
+const Tooltip = dynamic(() => import('recharts').then(m => ({ default: m.Tooltip })), { ssr: false })
+const ResponsiveContainer = dynamic(() => import('recharts').then(m => ({ default: m.ResponsiveContainer })), { ssr: false })
 
 function buildChartData(prices: number[]) {
     return prices.map((price, index) => {
@@ -79,10 +81,12 @@ export default function PriceChart() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-3">
-                        <img
+                        <Image
                             src={selectedCoin.image}
                             alt={selectedCoin.name}
-                            className="w-10 h-10 rounded-full"
+                            width={40}
+                            height={40}
+                            className="rounded-full"
                         />
                         <div>
                             <h2 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
