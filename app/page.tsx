@@ -10,8 +10,11 @@ export default function Home() {
   const { isDarkMode } = useCryptoStore()
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-950' : 'bg-gray-50'
-      }`}>
+    // This div listens to isDarkMode and swaps the background
+    <div
+      className="min-h-screen transition-colors duration-300"
+      style={{ backgroundColor: isDarkMode ? '#0a0a0f' : '#f9fafb' }}
+    >
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 py-8">
         <StatsHero />
