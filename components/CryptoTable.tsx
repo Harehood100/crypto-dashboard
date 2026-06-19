@@ -19,6 +19,36 @@ const formatLarge = (num: number) => {
     return `$${num.toLocaleString()}`
 }
 
+function SkeletonCard({ isDarkMode }: { isDarkMode: boolean }) {
+    return (
+        <div className={`rounded-xl border p-3.5 ${isDarkMode ? 'bg-gray-900 border-gray-800' : 'bg-white border-gray-200'
+            }`}>
+            <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                    <div className={`w-9 h-9 rounded-full animate-pulse ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                        }`} />
+                    <div>
+                        <div className={`h-3 w-20 rounded animate-pulse mb-1 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                            }`} />
+                        <div className={`h-2 w-10 rounded animate-pulse ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'
+                            }`} />
+                    </div>
+                </div>
+                <div className={`h-5 w-8 rounded-full animate-pulse ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                    }`} />
+            </div>
+            <div className={`h-12 w-full rounded animate-pulse my-2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                }`} />
+            <div className="flex justify-between mt-2">
+                <div className={`h-4 w-24 rounded animate-pulse ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                    }`} />
+                <div className={`h-4 w-12 rounded animate-pulse ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'
+                    }`} />
+            </div>
+        </div>
+    )
+}
+
 function Sparkline({ prices, isPositive }: { prices: number[]; isPositive: boolean }) {
     const min = Math.min(...prices)
     const max = Math.max(...prices)
@@ -62,10 +92,10 @@ function SortPill({
         <button
             onClick={handleClick}
             className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${isActive
-                    ? 'bg-blue-600 text-white'
-                    : isDarkMode
-                        ? 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white'
+                : isDarkMode
+                    ? 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
         >
             {label}
@@ -88,19 +118,22 @@ function CoinCard({ coin, index }: { coin: Coin; index: number }) {
             onClick={() => setSelectedCoin(coin)}
             style={{ animationDelay: `${index * 40}ms`, opacity: 0, animationFillMode: 'forwards' }}
             className={`animate-slide-up rounded-xl border p-3.5 cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg ${isDarkMode
-                    ? 'bg-gray-900 border-gray-800 hover:border-blue-500/40 hover:shadow-blue-500/5'
-                    : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100'
+                ? 'bg-gray-900 border-gray-800 hover:border-blue-500/40 hover:shadow-blue-500/5'
+                : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-blue-100'
                 }`}
         >
             <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2.5">
-                    <Image
-                        src={coin.image}
-                        alt={coin.name}
-                        width={36}
-                        height={36}
-                        className="rounded-full"
-                    />
+                    <div style={{ width: 36, height: 36, flexShrink: 0 }}>
+                        <Image
+                            src={coin.image}
+                            alt={coin.name}
+                            width={36}
+                            height={36}
+                            className="rounded-full"
+                            style={{ width: '36px', height: '36px' }}
+                        />
+                    </div>
                     <div>
                         <p className={`text-sm font-semibold leading-tight ${isDarkMode ? 'text-white' : 'text-gray-900'
                             }`}>
@@ -175,9 +208,18 @@ export default function CryptoTable() {
 
     if (isLoading && displayCoins.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 gap-3">
-                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>Fetching live prices...</p>
+            <div>
+                <div className="flex items-center gap-2 mb-5">
+                    <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>Sort by</span>
+                    <div className={`h-6 w-14 rounded-full animate-pulse ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`} />
+                    <div className={`h-6 w-14 rounded-full animate-pulse ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`} />
+                    <div className={`h-6 w-14 rounded-full animate-pulse ${isDarkMode ? 'bg-gray-800' : 'bg-gray-200'}`} />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <SkeletonCard key={i} isDarkMode={isDarkMode} />
+                    ))}
+                </div>
             </div>
         )
     }

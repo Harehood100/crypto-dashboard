@@ -81,13 +81,16 @@ export default function PriceChart() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center gap-3">
-                        <Image
-                            src={selectedCoin.image}
-                            alt={selectedCoin.name}
-                            width={40}
-                            height={40}
-                            className="rounded-full"
-                        />
+                        <div style={{ width: 40, height: 40, flexShrink: 0 }}>
+                            <Image
+                                src={selectedCoin.image}
+                                alt={selectedCoin.name}
+                                width={40}
+                                height={40}
+                                className="rounded-full"
+                                style={{ width: '40px', height: '40px' }}
+                            />
+                        </div>
                         <div>
                             <h2 className={`text-base font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                                 {selectedCoin.name}

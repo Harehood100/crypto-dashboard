@@ -1,16 +1,32 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import Navbar from '@/components/Navbar'
-import StatsHero from '@/components/StatsHero'
-import CryptoTable from '@/components/CryptoTable'
-import PriceChart from '@/components/PriceChart'
 import { useCryptoStore } from '@/store/useCryptoStore'
+
+// Load these after initial paint — not critical for first render
+const StatsHero = dynamic(() => import('@/components/StatsHero'), {
+  ssr: false,
+  loading: () => <div style={{ height: '140px' }} />,
+})
+
+const CryptoTable = dynamic(() => import('@/components/CryptoTable'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex justify-center py-24">
+      <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  ),
+})
+
+const PriceChart = dynamic(() => import('@/components/PriceChart'), {
+  ssr: false,
+})
 
 export default function Home() {
   const { isDarkMode } = useCryptoStore()
 
   return (
-    // This div listens to isDarkMode and swaps the background
     <div
       className="min-h-screen transition-colors duration-300"
       style={{ backgroundColor: isDarkMode ? '#0a0a0f' : '#f9fafb' }}

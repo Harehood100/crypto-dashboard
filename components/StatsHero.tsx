@@ -58,8 +58,8 @@ function StatCard({
     return (
         <div
             className={`animate-slide-up rounded-xl p-4 border transition-all ${isDarkMode
-                    ? 'bg-gray-900 border-gray-800 hover:border-gray-700'
-                    : 'bg-white border-gray-200 hover:border-gray-300'
+                ? 'bg-gray-900 border-gray-800 hover:border-gray-700'
+                : 'bg-white border-gray-200 hover:border-gray-300'
                 }`}
             style={{ animationDelay: delay, opacity: 0, animationFillMode: 'forwards' }}
         >
@@ -74,7 +74,7 @@ function StatCard({
             </div>
 
             <p className={`text-xl font-bold font-mono mb-1.5 ${isDarkMode ? 'text-white' : 'text-gray-900'
-                }`}>
+                }`} style={{ minHeight: '28px' }}>
                 {formatted}
             </p>
 
